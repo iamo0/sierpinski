@@ -55,10 +55,10 @@ function connectPoints(points, ctx, strokeStyle = "black") {
   ctx.restore();
 }
 
-function drawADot(x, y, ctx, fillStyle = "black") {
+function drawADot(x, y, ctx, fillStyle = "black", size = 1) {
   ctx.save(); {
     ctx.fillStyle = fillStyle;
-    ctx.fillRect(x, y, 1, 1);
+    ctx.fillRect(x - Math.round(size / 2), y - Math.round(size / 2), size, size);
   }
   ctx.restore();
 }
@@ -68,7 +68,7 @@ function getRandom(min, max) {
 }
 
 (() => {
-  const FPS = 60;
+  const FPS = 20;
 
   const container = document.querySelector("canvas");
   const ctx = container.getContext("2d");
@@ -78,10 +78,11 @@ function getRandom(min, max) {
 
   const renderedPoints = [];
   const maxRenderedPoints = 10240;
+  const lastLines = 20;
 
   const polygon = getPolygon(size[0], size[1], 3);
   // NB! Not a truly random point
-  let lastPoint = [100, 100];
+  let lastPoint = [size[0] / 2, 100];
 
   setInterval(() => {
     const vertice = getRandom(1, 3) - 1;
@@ -95,7 +96,16 @@ function getRandom(min, max) {
       for (let i = 0; i < renderedPoints.length; i++) {
         const point = renderedPoints[i];
         const percent = i / pointsToRender.length;
-        drawADot(...point, ctx, `hsla(28, ${parseInt(percent * 100)}%, 50%, ${(percent).toFixed(2)})`);
+        drawADot(...point, ctx, `hsla(28, ${parseInt(percent * 100)}%, 50%, ${(percent).toFixed(2)})`, 2);
+      }
+
+      for (let i = 1; i < lastLines; i++) {
+        const from = renderedPoints.slice(-i - 1, -i)[0];
+        const to = renderedPoints.slice(-i - 2, -i - 1)[0];
+
+        if (from !== undefined && to !== undefined) {
+          connectPoints([from, to], ctx, `hsla(12, 70%, 50%, ${1 - (i / lastLines)})`);
+        }
       }
     }
 
