@@ -46,9 +46,9 @@ function connectPoints(points, ctx, strokeStyle = "black") {
       while ((nextPoint = pointsLeft.shift())) {
         ctx.lineTo(...nextPoint);
       }
-
-      ctx.closePath();
     }
+    ctx.closePath();
+
     ctx.strokeStyle = strokeStyle;
     ctx.stroke();
   }
