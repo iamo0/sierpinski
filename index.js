@@ -14,13 +14,6 @@ function rotate(x, y, cx, cy, angle) {
   return [newX, newY];
 }
 
-function getCenter(x1, y1, x2, y2) {
-  return [
-    x1 + (x2 - x1) / 2,
-    y1 + (y2 - y1) / 2,
-  ];
-}
-
 function getPolygon(width, height, vertices) {
   const result = [
     [width / 2, 0],
@@ -67,8 +60,27 @@ function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function step(from, to, r) {
+  return [
+    from[0] + (to[0] - from[0]) * r,
+    from[1] + (to[1] - from[1]) * r,
+  ];
+}
+
+
 (() => {
-  const FPS = 20;
+  const FPS = 60;
+  const VERTICES = 4;
+  const RATIO = {
+    3: 0.5,
+    4: 2 / 3,
+    5: 0.618,
+    6: 0.667,
+    7: 0.692,
+    8: 0.707,
+    9: 0.742,
+    10: 0.764,
+  }[VERTICES] ?? 1 / 3;
 
   const container = document.querySelector("canvas");
   const ctx = container.getContext("2d");
@@ -80,13 +92,13 @@ function getRandom(min, max) {
   const maxRenderedPoints = 10240;
   const lastLines = 20;
 
-  const polygon = getPolygon(size[0], size[1], 3);
+  const polygon = getPolygon(size[0], size[1], VERTICES);
   // NB! Not a truly random point
   let lastPoint = [size[0] / 2, 100];
 
   setInterval(() => {
-    const vertice = getRandom(1, 3) - 1;
-    const newPoint = getCenter(...lastPoint, ...polygon[vertice]);
+    const vertice = getRandom(1, VERTICES) - 1;
+    const newPoint = step(lastPoint, polygon[vertice], RATIO);
     renderedPoints.push(newPoint);
 
     ctx.clearRect(0, 0, size[0], size[1]); {
@@ -104,7 +116,7 @@ function getRandom(min, max) {
         const to = renderedPoints.slice(-i - 2, -i - 1)[0];
 
         if (from !== undefined && to !== undefined) {
-          connectPoints([from, to], ctx, `hsla(12, 70%, 50%, ${1 - (i / lastLines)})`);
+          connectPoints([from, to], ctx, `hsla(12, 70%, 50%, ${0.3 - (i / lastLines)})`);
         }
       }
     }
